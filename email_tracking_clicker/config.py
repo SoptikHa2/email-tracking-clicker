@@ -10,5 +10,6 @@ class Config(BaseModel):
     email_address: str
     email_password: str
     imap_server: str
+    check_interval_s: int = 1800
 
     whitelist: list[TrackingEntry]
