@@ -1,0 +1,13 @@
+{
+    "email_address": "your_email@foo.bar",
+    "email_password": "your_password",
+    "imap_server": "imap.foo.bar",
+    "whitelist": [
+      {
+        "email_original_sender_regex": ".*@bar.baz",
+        "links_to_click_regex": [
+          ".*"
+        ]
+      }
+    ]
+}
