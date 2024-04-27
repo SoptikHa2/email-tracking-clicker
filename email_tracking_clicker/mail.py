@@ -18,4 +18,4 @@ class Email:
 
 
     def get_correspondents(self) -> list[str]:
-        return re.findall(r"<(.*@.*)>", self._raw_body)
+        return re.findall(r"<([^>]*@[^>]*)>", self._raw_body)
