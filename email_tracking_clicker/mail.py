@@ -5,33 +5,17 @@ class Email:
         r'(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:/[^\]>\)\s]*)?'
         , re.IGNORECASE)
 
-    def __init__(self, raw_body: str):
-        self._raw_body = raw_body
+    def __init__(self, body_lines: list[str]):
+        self._body_lines = [body_line.replace("\n","").replace("\r", "").strip() for body_line in body_lines]
+        self._raw_body = "".join(self._body_lines)
 
     def get_links(self) -> list[str]:
-        text = self.get_text()
-
         return [
-            link.removesuffix('>').removesuffix(']')
+            link.split('>')[0].split('<')[0].split(']')[0].split("\"")[0].split("&nbsp")[0].removesuffix(".").removesuffix(";")
             for link in
-            Email._LINK_REGEX.findall(text)
+            Email._LINK_REGEX.findall(self._raw_body)
         ]
 
 
-    def get_sender(self) -> str:
-        lines = self._raw_body.split("\r\n")
-        from_line = next(line for line in lines if line.startswith("From:"))
-        email = re.search(r"<(.*?)>", from_line).group(1)
-        return email
-
-    def get_text(self) -> str:
-        # First line: empty
-        # Second line: separator
-        # Next N lines: headers
-        # N+1th line: empty
-        # all other lines: body
-        headers_and_text = self._raw_body.split("\r\n")[2:]
-        while headers_and_text[0] != '':
-            headers_and_text = headers_and_text[1:]
-
-        return "\r\n".join(headers_and_text[1:])
+    def get_correspondents(self) -> list[str]:
+        return re.findall(r"<(.*@.*)>", self._raw_body)

@@ -41,10 +41,13 @@ class EmailExtractor:
             # We support only base64
             body_lines = []
             for line in email_body_raw.split(b'\r\n'):
-                with suppress(binascii.Error, UnicodeDecodeError):
-                    body_lines.append(base64.b64decode(line).decode('utf-8'))
+                with suppress(UnicodeDecodeError):
+                    try:
+                        body_lines.append(base64.b64decode(line).decode('utf-8'))
+                    except binascii.Error:
+                        body_lines.append(line.decode('utf-8'))
 
-            emails.append(Email(''.join(body_lines)))
+            emails.append(Email(body_lines))
 
         return emails
 
